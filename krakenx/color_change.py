@@ -126,7 +126,7 @@ class KrakenX52:
       print(k,v)
 
   def _receive_status(self):
-    raw_status = self.dev.read(0x81, 64)
+    raw_status = self.dev.read(0x81, 64, 2000)
     liquid_temperature = raw_status[1] + raw_status[2]/10
     fan_speed = raw_status[3] << 8 | raw_status[4]
     pump_speed = raw_status[5] << 8 | raw_status[6]
