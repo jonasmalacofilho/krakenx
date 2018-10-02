@@ -93,7 +93,7 @@ class KrakenX52:
 
   def _generic_speed(self, channel, speed):
     # krakens currently require the same set of temperatures on both channels
-    stdtemps = range(20, 62, 2)
+    stdtemps = range(0, 105, 5)
     tmp = profile.normalize(speed, CRITICAL_TEMP)
     norm = [(t, profile.interpolate(tmp, t)) for t in stdtemps]
     cbase = {'fan': 0x80, 'pump': 0xc0}[channel]
