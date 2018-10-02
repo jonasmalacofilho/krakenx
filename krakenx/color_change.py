@@ -39,7 +39,7 @@ class KrakenX52:
   @classmethod
   def _build_msg(cls, *args):
     payload = list(itertools.chain(*args))
-    print('sending {} (+{} padding bytes)'.format(' '.join(format(i, '02x') for i in payload), 65 - len(payload)))
+    # print('sending {} (+{} padding bytes)'.format(' '.join(format(i, '02x') for i in payload), 65 - len(payload)))
     return payload + [0]*(65 - len(payload))
 
   @classmethod
@@ -64,6 +64,8 @@ class KrakenX52:
 
 
   def __init__(self, dev, **kwargs):
+    print('debug: bcdDevice={:#02x} manufacturer="{}" product="{}"'
+          .format(dev.bcdDevice, dev.manufacturer, dev.product))
     self.dev = dev
 
     self._mode = kwargs.pop('mode', self.MODE_SOLID)
@@ -148,7 +150,7 @@ class KrakenX52:
 
   def _receive_status(self):
     raw_status = self.dev.read(0x81, 64)
-    print('received {}'.format(' '.join(format(i, '02x') for i in raw_status)))
+    # print('received {}'.format(' '.join(format(i, '02x') for i in raw_status)))
     liquid_temperature = raw_status[1] + raw_status[2]/10
     fan_speed = raw_status[3] << 8 | raw_status[4]
     pump_speed = raw_status[5] << 8 | raw_status[6]
