@@ -39,7 +39,6 @@ class KrakenX52:
   @classmethod
   def _build_msg(cls, *args):
     payload = list(itertools.chain(*args))
-    # print('sending {} (+{} padding bytes)'.format(' '.join(format(i, '02x') for i in payload), 65 - len(payload)))
     return payload + [0]*(65 - len(payload))
 
   @classmethod
@@ -64,8 +63,6 @@ class KrakenX52:
 
 
   def __init__(self, dev, **kwargs):
-    print('debug: bcdDevice={:#02x} manufacturer="{}" product="{}"'
-          .format(dev.bcdDevice, dev.manufacturer, dev.product))
     self.dev = dev
 
     self._mode = kwargs.pop('mode', self.MODE_SOLID)
@@ -92,13 +89,9 @@ class KrakenX52:
     return (self._mode.mode[0], self._aspeed)
 
   def _generic_speed(self, channel, speed):
-    # krakens currently require the same set of temperatures on both channels
-    stdtemps = range(0, 105, 5)
-    tmp = profile.normalize(speed, CRITICAL_TEMP)
-    norm = [(t, profile.interpolate(tmp, t)) for t in stdtemps]
-    cbase = {'fan': 0x80, 'pump': 0xc0}[channel]
-    for i, (temp, duty) in enumerate(norm):
-      self.dev.write(0x01, KrakenX52._build_msg([0x02, 0x4d, cbase + i, temp, duty]))
+    temp, duty = speed[0]
+    cbase = {'fan': 0x00, 'pump': 0x40}[channel]
+    self.dev.write(0x01, KrakenX52._build_msg([0x02, 0x4d, cbase, 0, duty]))
 
   def _send_pump_speed(self):
     self._generic_speed('pump', self._pspeed)
@@ -150,7 +143,6 @@ class KrakenX52:
 
   def _receive_status(self):
     raw_status = self.dev.read(0x81, 64)
-    # print('received {}'.format(' '.join(format(i, '02x') for i in raw_status)))
     liquid_temperature = raw_status[1] + raw_status[2]/10
     fan_speed = raw_status[3] << 8 | raw_status[4]
     pump_speed = raw_status[5] << 8 | raw_status[6]
