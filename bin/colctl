@@ -4,7 +4,9 @@
 import argparse
 import json
 import os
-import usb.core
+import usb
+
+from liquidctl.driver.usb import PyUsbHid
 
 VENDOR = 0x1e71
 PRODUCT = 0x170e
@@ -91,8 +93,8 @@ def main(parser):
 
     args = parser.parse_args()
     varg = vars(args)
-    
-    devices = list(usb.core.find(idVendor=VENDOR, idProduct=PRODUCT, find_all=True))
+
+    devices = list(PyUsbHid.enumerate(usb, VENDOR, PRODUCT))
 
     for dev in devices:
       cooler = KrakenX52(dev, **varg)
